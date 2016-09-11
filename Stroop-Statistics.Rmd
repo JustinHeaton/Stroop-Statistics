@@ -1,0 +1,91 @@
+---
+title: 'Statistics: The Science of Decisions Project'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r, echo=FALSE}
+setwd('~/Downloads')
+```
+
+**Background Information**
+
+In a Stroop task, participants are presented with a list of words, with each word displayed in a color of ink. The participant’s task is to say out loud the color of the ink in which the word is printed. The task has two conditions: a congruent words condition, and an incongruent words condition. In the congruent words condition, the words being displayed are color words whose names match the colors in which they are printed: for example <span style="color:red">RED</span>, <span style="color:blue">BLUE</span>. In the incongruent words condition, the words displayed are color words whose names do not match the colors in which they are printed: for example <span style="color:green">PURPLE</span>, <span style="color:purple">ORANGE</span>. In each case, we measure the time it takes to name the ink colors in equally-sized lists. Each participant will go through and record a time from each condition.
+
+```{r}
+library(ggplot2)
+library(gridExtra)
+```
+
+**Question 1. What is our independent variable? What is our dependent variable?**
+
+Answer: The independent variable is the written word, printed in either congruent or incongruent colors, and the dependent variable is the time it takes the person to name the ink color for each word. 
+
+Source: https://en.wikipedia.org/wiki/Dependent_and_independent_variables
+
+**Question 2. What is an appropriate set of hypotheses for this task? What kind of statistical test do you expect to perform? Justify your choices.**
+
+Since it is much more difficult to correctly identify the ink color when they are incongruent, I expect it will take longer on average to identify the incongruent words. 
+
+My null hypothesis is that, in the limited sample given, any difference in the means of the two groups is a result of chance, and not necessarily representative of the entire population.
+
+The alternative is that the mean time for the incogruent condition is significantly slower than the mean of congruent times. 
+
+**H<sub>0</sub>:** µ<sub>congruent</sub> = µ<sub>incongruent</sub>
+
+**H<sub>A</sub>:** µ<sub>congruent</sub> < µ<sub>incongruent</sub>
+
+µ<sub>congruent</sub> represents the mean for the congruent task, µ<sub>incongruent</sub> is the mean for incongruent. 
+
+Given that the sample size is less than 30, the standard deviation of the population is unknown, and with the assumption that the distributions of times are relatively normal, I will perform a one tailed, paired t-test to test the hypotheses. 
+
+The test will be one tailed because the alternate hypothesis only considers a change in one direction and it will be a paired t-test because the two samples represent the same people and their times are being compared across the two conditions.
+
+Source: https://en.wikipedia.org/wiki/Student%27s_t-test
+
+https://en.wikipedia.org/wiki/Student%27s_t-distribution
+
+**Question 3. Report some descriptive statistics regarding this dataset. Include at least one measure of central tendency and at least one measure of variability.**
+
+```{r, import data}
+df <- read.csv('stroopdata.csv')
+summary(df)
+#Standard Deviation for Congruent Condition:
+sd(df$Congruent)
+#Standard Deviation for Incogruent Condition:
+sd(df$Incongruent)
+```
+
+**Question 4. Provide one or two visualizations that show the distribution of the sample data. Write one or two sentences noting what you observe about the plot or plots.**
+
+```{r, warning = FALSE}
+plot1 <-qplot(x = Congruent, data = df, binwidth = 4)+
+  ggtitle('Congruent')+
+  xlim(5,40)+
+  geom_vline(xintercept = mean(df$Congruent), col = 'blue', lwd = 2)
+
+plot2 <-qplot(x = Incongruent, data = df, binwidth = 4)+
+  ggtitle('Incongruent')+
+  xlim(5,40)+
+  geom_vline(xintercept = mean(df$Incongruent), col = 'blue', lwd = 2)
+
+grid.arrange(plot1, plot2)
+```
+
+The above histograms show the distribution of times for each condition, and the vertical blue line on each plot indicates the mean value for that condition. Since these plots are on the same horizontal scale, it is obvious that the distribution of times for the Incongruent histogram is shifted to the right compared to the Congruent, meaning that the times for incongruent tend to be slower. 
+
+**5. Now, perform the statistical test and report your results. What is your confidence level and your critical statistic value? Do you reject the null hypothesis or fail to reject it? Come to a conclusion in terms of the experiment task. Did the results match up with your expectations?**
+
+```{r}
+t.test(df$Congruent,df$Incongruent, alternative = "less", paired = TRUE)
+```
+
+For this t-test, with 23 degrees of freedom, a t-statistic value less than -1.714 will be considered a significant result. Given that the the resuting t-statistic is -8.0207 and the p-value is 2.052e-08, this result should be considered significant and the null hypothesis should be rejected.
+
+The result of the t-test makes sense, and is congruent with my initial intuition about the problem. The time it takes to identify the colors for the incongruent condition is significantly slower than in the congruent condition. 
+
+
+
+
